@@ -6,23 +6,50 @@ import (
 	"net/http"
 )
 
-type User struct {
-	Name string `json:"name"`
+type Todo struct {
+	Id int `json:"id"`
+	Text string `json:"text"`
+	Status bool `json:"status"`
 }
+
+func All(store interface{}) echo.HandlerFunc {
+	return nil
+}
+
+func Get(store interface{}, my interface{}) echo.HandlerFunc {
+	return nil
+}
+
+func Create(store interface{}, my interface{}) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		todo := new(Todo)
+		if err := c.Bind(todo); err != nil {
+			return err
+		}
+		return c.JSON(http.StatusCreated, todo)
+	}
+}
+
+func Edit(store interface{}, my interface{}) echo.HandlerFunc {
+	return nil
+}
+
+func Delete(store interface{}, my interface{}) echo.HandlerFunc {
+	return nil
+}
+
 
 
 func main() {
 	e := echo.New()
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hell	o, World")
-	})
-	e.POST("/users", func(c echo.Context) error {
-		u := new(User)
-		if err := c.Bind(u); err != nil {
-			return err
-		}
-		return c.JSON(http.StatusCreated, u)
-	})
-	e.Logger.Fatal(e.Start(":1323"))
+	store := map[int]Todo{}
+
+	e.GET("/todos/", All(&store))
+	e.GET("/todos/:id", Get(&store, &Todo{}))
+	e.POST("/todos/", Create(&store, &Todo{}))
+	e.PATCH("/todos/:id", Edit(&store, &Todo{}))
+	e.DELETE("/todos/:id", Delete(&store, &Todo{}))
+
+	e.Logger.Fatal(e.Start(":3000"))
 }
 
