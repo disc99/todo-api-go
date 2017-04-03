@@ -12,8 +12,14 @@ type Todo struct {
 	Status bool `json:"status"`
 }
 
-func All(store interface{}) echo.HandlerFunc {
-	return nil
+func All(store map[int]Todo) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		vs := []Todo{}
+		for _, v := range store {
+			vs = append(vs, v)
+		}
+		return c.JSON(http.StatusOK, vs)
+	}
 }
 
 func Get(store interface{}, my interface{}) echo.HandlerFunc {
@@ -44,7 +50,7 @@ func main() {
 	e := echo.New()
 	store := map[int]Todo{}
 
-	e.GET("/todos/", All(&store))
+	e.GET("/todos/", All(store))
 	e.GET("/todos/:id", Get(&store, &Todo{}))
 	e.POST("/todos/", Create(&store, &Todo{}))
 	e.PATCH("/todos/:id", Edit(&store, &Todo{}))
