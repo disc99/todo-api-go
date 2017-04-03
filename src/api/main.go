@@ -4,6 +4,7 @@ package main
 import (
 	"github.com/labstack/echo"
 	"net/http"
+	"strconv"
 )
 
 type Todo struct {
@@ -22,11 +23,17 @@ func All(store map[int]Todo) echo.HandlerFunc {
 	}
 }
 
-func Get(store interface{}, my interface{}) echo.HandlerFunc {
-	return nil
+func Get(store map[int]Todo, my interface{}) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return err
+		}
+		return c.JSON(http.StatusOK, store[id])
+	}
 }
 
-func Create(store interface{}, my interface{}) echo.HandlerFunc {
+func Create(store map[int]Todo, my interface{}) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		todo := new(Todo)
 		if err := c.Bind(todo); err != nil {
@@ -36,11 +43,11 @@ func Create(store interface{}, my interface{}) echo.HandlerFunc {
 	}
 }
 
-func Edit(store interface{}, my interface{}) echo.HandlerFunc {
+func Edit(store map[int]Todo, my interface{}) echo.HandlerFunc {
 	return nil
 }
 
-func Delete(store interface{}, my interface{}) echo.HandlerFunc {
+func Delete(store map[int]Todo, my interface{}) echo.HandlerFunc {
 	return nil
 }
 
@@ -51,10 +58,10 @@ func main() {
 	store := map[int]Todo{}
 
 	e.GET("/todos/", All(store))
-	e.GET("/todos/:id", Get(&store, &Todo{}))
-	e.POST("/todos/", Create(&store, &Todo{}))
-	e.PATCH("/todos/:id", Edit(&store, &Todo{}))
-	e.DELETE("/todos/:id", Delete(&store, &Todo{}))
+	e.GET("/todos/:id", Get(store, &Todo{}))
+	e.POST("/todos/", Create(store, &Todo{}))
+	e.PATCH("/todos/:id", Edit(store, &Todo{}))
+	e.DELETE("/todos/:id", Delete(store, &Todo{}))
 
 	e.Logger.Fatal(e.Start(":3000"))
 }
