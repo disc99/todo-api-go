@@ -39,12 +39,27 @@ func Create(store map[int]Todo, my interface{}) echo.HandlerFunc {
 		if err := c.Bind(todo); err != nil {
 			return err
 		}
+		id := len(store) + 1
+		todo.Id = id
+		store[id] = *todo
 		return c.JSON(http.StatusCreated, todo)
 	}
 }
 
 func Edit(store map[int]Todo, my interface{}) echo.HandlerFunc {
-	return nil
+	return func(c echo.Context) error {
+		todo := new(Todo)
+		if err := c.Bind(todo); err != nil {
+			return err
+		}
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return err
+		}
+
+		store[id] = *todo
+		return c.JSON(http.StatusCreated, todo)
+	}
 }
 
 func Delete(store map[int]Todo, my interface{}) echo.HandlerFunc {
