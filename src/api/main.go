@@ -63,9 +63,16 @@ func Edit(store map[int]Todo, my interface{}) echo.HandlerFunc {
 }
 
 func Delete(store map[int]Todo, my interface{}) echo.HandlerFunc {
-	return nil
-}
+	return func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return err
+		}
 
+		delete(store, id)
+		return c.JSON(http.StatusNoContent, nil)
+	}
+}
 
 
 func main() {
