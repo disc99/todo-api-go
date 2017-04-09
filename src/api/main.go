@@ -68,8 +68,9 @@ func Delete(store map[int]Todo, my interface{}) echo.HandlerFunc {
 		if err != nil {
 			return err
 		}
-
-		delete(store, id)
+		todo := store[id]
+		todo.Status = true
+		store[id] = todo
 		return c.JSON(http.StatusNoContent, nil)
 	}
 }
